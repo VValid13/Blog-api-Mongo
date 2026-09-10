@@ -3,35 +3,31 @@ import { ArticlesRepository } from './articles.repository.js';
 import { CreateArticleDto } from './_utils/dtos/requests/create-article.dto.js';
 import { UpdateArticleDto } from './_utils/dtos/requests/update-article.dto.js';
 import { MongoId } from '../_utils/types/mongo-id.type.js';
-import { Article } from './schemas/article.schema.js';
+import { ArticleDocument } from './schemas/article.schema.js';
 
 @Injectable()
 export class ArticlesService {
   constructor(private readonly articlesRepository: ArticlesRepository) {}
 
-  create(createArticleDto: CreateArticleDto): Promise<Article> {
-    return this.articlesRepository.create(createArticleDto);
+  async create(createArticleDto: CreateArticleDto) {
+    return await this.articlesRepository.create(createArticleDto);
   }
 
-  findAll(): Promise<Article[]> {
-    return this.articlesRepository.findAll();
+  async findAll() {
+    return await this.articlesRepository.findAll();
   }
 
-  findById(articleId: MongoId): Promise<Article> {
-    return this.articlesRepository.findByIdOrFail(articleId);
-  }
-
-  updateArticle(
-    articleId: MongoId,
+  async updateArticle(
+    article: ArticleDocument,
     updateArticleDto: UpdateArticleDto,
-  ): Promise<Article> {
-    return this.articlesRepository.updateByIdOrFail(
-      articleId,
+  ) {
+    return await this.articlesRepository.updateByIdOrFail(
+      article,
       updateArticleDto,
     );
   }
 
-  delete(articleId: MongoId): Promise<Article> {
-    return this.articlesRepository.deleteByIdOrFail(articleId);
+  async delete(articleId: MongoId) {
+    return await this.articlesRepository.deleteByIdOrFail(articleId);
   }
 }

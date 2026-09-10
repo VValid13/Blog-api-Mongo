@@ -1,12 +1,10 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { HydratedDocument, Types } from 'mongoose';
+import { HydratedDocument } from 'mongoose';
 
 export type ArticleDocument = HydratedDocument<Article>;
 
 @Schema({ timestamps: true, versionKey: false })
 export class Article {
-  _id: Types.ObjectId;
-
   @Prop({ required: true, type: String })
   title: string;
 
@@ -22,3 +20,5 @@ export class Article {
 }
 
 export const ArticleSchema = SchemaFactory.createForClass(Article);
+
+ArticleSchema.index({ title: 1, author: 1 }, { unique: true });
