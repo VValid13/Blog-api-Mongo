@@ -1,38 +1,33 @@
 import { Injectable } from '@nestjs/common';
-import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
-import { CreateArticleDto } from './dto/create-article.dto.js';
-import { Article, ArticleDocument } from './schemas/article.schema.js';
-import { UpdateArticleDto } from './dto/update-article.dto.js';
+import { ArticlesRepository } from './articles.repository.js';
+import { CreateArticleDto } from './_utils/dtos/request/create-article.dto.js';
+import { UpdateArticleDto } from './_utils/dtos/request/update-article.dto.js';
+import { Article } from './schemas/article.schema.js';
 
 @Injectable()
 export class ArticlesService {
-  constructor(
-    @InjectModel(Article.name) private articleModel: Model<ArticleDocument>,
-  ) {}
+  constructor(private readonly articlesRepository: ArticlesRepository) {}
 
   create(createArticleDto: CreateArticleDto): Promise<Article> {
-    return this.articleModel.create(createArticleDto);
+    return this.articlesRepository.create(createArticleDto);
   }
 
   findAll(): Promise<Article[]> {
-    return this.articleModel.find().exec();
+    return this.articlesRepository.findAll();
+  }
+
+  findById(articleId: string): Promise<Article> {
+    return this.articlesRepository.findById(articleId);
   }
 
   updateArticle(
-    id: string,
+    articleId: string,
     updateArticleDto: UpdateArticleDto,
-  ): Promise<Article | null> {
-    return this.articleModel
-      .findByIdAndUpdate(id, updateArticleDto, { new: true })
-      .exec();
+  ): Promise<Article> {
+    return this.articlesRepository.updateById(articleId, updateArticleDto);
   }
 
-  findById(id: string): Promise<Article | null> {
-    return this.articleModel.findById(id).exec();
-  }
-
-  delete(id: string): Promise<Article | null> {
-    return this.articleModel.findByIdAndDelete(id).exec();
+  delete(articleId: string): Promise<Article> {
+    return this.articlesRepository.deleteById(articleId);
   }
 }

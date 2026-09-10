@@ -6,4 +6,4 @@ dist
 .idea
 .DS_Store
 coverage
-tsconfig.build.tsbuildinfo
+*.tsbuildinfo

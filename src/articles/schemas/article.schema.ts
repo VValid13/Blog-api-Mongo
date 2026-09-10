@@ -3,16 +3,20 @@ import { HydratedDocument } from 'mongoose';
 
 export type ArticleDocument = HydratedDocument<Article>;
 
-@Schema({ timestamps: true })
+@Schema({ timestamps: true, versionKey: false })
 export class Article {
-  @Prop({ required: true })
+  @Prop({ required: true, type: String })
   title: string;
 
-  @Prop({ required: true })
+  @Prop({ required: true, type: String })
   content: string;
 
-  @Prop({ required: true })
+  @Prop({ required: true, type: String })
   author: string;
+
+  createdAt: Date;
+
+  updatedAt: Date;
 }
 
 export const ArticleSchema = SchemaFactory.createForClass(Article);

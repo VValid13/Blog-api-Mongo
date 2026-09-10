@@ -3,14 +3,14 @@ import {
   Controller,
   Delete,
   Get,
-  NotFoundException,
   Param,
   Patch,
   Post,
 } from '@nestjs/common';
 import { ArticlesService } from './articles.service.js';
-import { CreateArticleDto } from './dto/create-article.dto.js';
-import { UpdateArticleDto } from './dto/update-article.dto.js';
+import { CreateArticleDto } from './_utils/dtos/request/create-article.dto.js';
+import { UpdateArticleDto } from './_utils/dtos/request/update-article.dto.js';
+import { ParseObjectIdPipe } from './_utils/pipes/parse-object-id.pipe.js';
 import { Article } from './schemas/article.schema.js';
 
 @Controller('articles')
@@ -27,36 +27,25 @@ export class ArticlesController {
     return this.articlesService.findAll();
   }
 
-  @Get(':id')
-  async findById(@Param('id') id: string): Promise<Article> {
-    const article = await this.articlesService.findById(id);
-    if (!article) {
-      throw new NotFoundException(`Article ${id} not found`);
-    }
-    return article;
+  @Get(':articleId')
+  findById(
+    @Param('articleId', ParseObjectIdPipe) articleId: string,
+  ): Promise<Article> {
+    return this.articlesService.findById(articleId);
   }
 
-  @Patch(':id')
-  async update(
-    @Param('id') id: string,
+  @Patch(':articleId')
+  update(
+    @Param('articleId', ParseObjectIdPipe) articleId: string,
     @Body() updateArticleDto: UpdateArticleDto,
   ): Promise<Article> {
-    const article = await this.articlesService.updateArticle(
-      id,
-      updateArticleDto,
-    );
-    if (!article) {
-      throw new NotFoundException(`Article ${id} not found`);
-    }
-    return article;
+    return this.articlesService.updateArticle(articleId, updateArticleDto);
   }
 
-  @Delete(':id')
-  async delete(@Param('id') id: string): Promise<Article> {
-    const article = await this.articlesService.delete(id);
-    if (!article) {
-      throw new NotFoundException(`Article ${id} not found`);
-    }
-    return article;
+  @Delete(':articleId')
+  delete(
+    @Param('articleId', ParseObjectIdPipe) articleId: string,
+  ): Promise<Article> {
+    return this.articlesService.delete(articleId);
   }
 }
