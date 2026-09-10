@@ -3,6 +3,7 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { ArticlesController } from './articles.controller.js';
 import { ArticlesRepository } from './articles.repository.js';
 import { ArticlesService } from './articles.service.js';
+import { ParseObjectIdPipe } from './_utils/pipes/parse-object-id.pipe.js';
 import { Article, ArticleSchema } from './schemas/article.schema.js';
 
 @Module({
@@ -10,7 +11,7 @@ import { Article, ArticleSchema } from './schemas/article.schema.js';
     MongooseModule.forFeature([{ name: Article.name, schema: ArticleSchema }]),
   ],
   controllers: [ArticlesController],
-  providers: [ArticlesService, ArticlesRepository],
+  providers: [ArticlesService, ArticlesRepository, ParseObjectIdPipe],
   exports: [ArticlesService],
 })
 export class ArticlesModule {}

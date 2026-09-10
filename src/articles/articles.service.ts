@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { ArticlesRepository } from './articles.repository.js';
 import { CreateArticleDto } from './_utils/dtos/requests/create-article.dto.js';
 import { UpdateArticleDto } from './_utils/dtos/requests/update-article.dto.js';
-import { MongoId } from './_utils/types/mongo-id.type.js';
+import { MongoId } from '../_utils/types/mongo-id.type.js';
 import { Article } from './schemas/article.schema.js';
 
 @Injectable()

@@ -1,13 +1,20 @@
-import { BadRequestException, Injectable, PipeTransform } from '@nestjs/common';
+import { Injectable, PipeTransform } from '@nestjs/common';
 import { isValidObjectId } from 'mongoose';
-import { MongoId } from '../types/mongo-id.type.js';
+import { ArticlesRepository } from '../../articles.repository.js';
+import { InvalidArticleIdException } from '../errors/articles.errors.js';
+import { Article } from '../../schemas/article.schema.js';
 
 @Injectable()
-export class ParseObjectIdPipe implements PipeTransform<string, MongoId> {
-  transform(value: string): MongoId {
+export class ParseObjectIdPipe implements PipeTransform<
+  string,
+  Promise<Article>
+> {
+  constructor(private readonly articlesRepository: ArticlesRepository) {}
+
+  transform(value: string): Promise<Article> {
     if (!isValidObjectId(value)) {
-      throw new BadRequestException(`Invalid Mongo article id: ${value}`);
+      throw new InvalidArticleIdException(value);
     }
-    return value;
+    return this.articlesRepository.findByIdOrFail(value);
   }
 }
