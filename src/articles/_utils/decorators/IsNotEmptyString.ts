@@ -1,6 +1,6 @@
 import { applyDecorators } from '@nestjs/common';
 import { IsNotEmpty, IsString } from 'class-validator';
 
-export function IsStringAndNotEmpty() {
+export function IsNotEmptyString() {
   return applyDecorators(IsString(), IsNotEmpty());
 }

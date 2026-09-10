@@ -5,7 +5,7 @@ services:
     ports:
       - '27017:27017'
     volumes:
-      - ./mongo_data:/data/db
+      - mongo_data:/data/db
 
   api:
     build: .
@@ -16,3 +16,6 @@ services:
       MONGODB_URI: ${MONGODB_URI_DOCKER}
     depends_on:
       - mongo
+
+volumes:
+  mongo_data:
