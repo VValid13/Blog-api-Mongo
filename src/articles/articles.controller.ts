@@ -10,9 +10,8 @@ import {
 import { ArticlesService } from './articles.service.js';
 import { CreateArticleDto } from './_utils/dtos/requests/create-article.dto.js';
 import { UpdateArticleDto } from './_utils/dtos/requests/update-article.dto.js';
-import { ArticleMapper } from './_utils/mappers/article.mapper.js';
 import { ParseObjectIdPipe } from './_utils/pipes/parse-object-id.pipe.js';
-import type { ArticleDocument } from './schemas/article.schema.js';
+import type { LeanArticle } from './schemas/article.schema.js';
 
 @Controller('articles')
 export class ArticlesController {
@@ -20,38 +19,29 @@ export class ArticlesController {
 
   @Post()
   async create(@Body() createArticleDto: CreateArticleDto) {
-    const article = await this.articlesService.create(createArticleDto);
-    return ArticleMapper.toResponse(article);
+    return await this.articlesService.create(createArticleDto);
   }
 
   @Get()
   async findAll() {
-    const articles = await this.articlesService.findAll();
-    return ArticleMapper.toResponseList(articles);
+    return await this.articlesService.findAll();
   }
 
   @Get(':articleId')
-  findById(@Param('articleId', ParseObjectIdPipe) article: ArticleDocument) {
-    return ArticleMapper.toResponse(article);
+  async findById(@Param('articleId', ParseObjectIdPipe) article: LeanArticle) {
+    return await this.articlesService.findById(article);
   }
 
   @Patch(':articleId')
   async update(
-    @Param('articleId', ParseObjectIdPipe) article: ArticleDocument,
+    @Param('articleId', ParseObjectIdPipe) article: LeanArticle,
     @Body() updateArticleDto: UpdateArticleDto,
   ) {
-    const updatedArticle = await this.articlesService.updateArticle(
-      article,
-      updateArticleDto,
-    );
-    return ArticleMapper.toResponse(updatedArticle);
+    return await this.articlesService.updateArticle(article, updateArticleDto);
   }
 
   @Delete(':articleId')
-  async delete(
-    @Param('articleId', ParseObjectIdPipe) article: ArticleDocument,
-  ) {
-    const deletedArticle = await this.articlesService.delete(article._id);
-    return ArticleMapper.toResponse(deletedArticle);
+  async delete(@Param('articleId', ParseObjectIdPipe) article: LeanArticle) {
+    return await this.articlesService.delete(article._id);
   }
 }

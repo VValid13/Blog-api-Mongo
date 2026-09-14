@@ -1,6 +1,5 @@
 import {
   BadRequestException,
-  ConflictException,
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
@@ -15,12 +14,6 @@ export class ArticlesExceptions {
   invalidArticleId(articleId: string) {
     return new BadRequestException(
       `Invalid id shape for article id: ${articleId}`,
-    );
-  }
-
-  articleAlreadyExists(title: string, author: string) {
-    return new ConflictException(
-      `Article with title "${title}" already exists for author "${author}"`,
     );
   }
 }
