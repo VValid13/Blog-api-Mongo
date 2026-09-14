@@ -1,7 +1,8 @@
-import { BadRequestException } from '@nestjs/common';
+import { BadRequestException, Type } from '@nestjs/common';
+import { MongoId } from '../types/mongo-id.type';
 
 export class InvalidMongoIdException extends BadRequestException {
-  constructor(schemaName: string, id: string) {
-    super(`Invalid id shape for ${schemaName}: ${id}`);
+  constructor(schema: Type, id: MongoId) {
+    super(`Invalid id shape for ${schema.name}: ${id}`);
   }
 }

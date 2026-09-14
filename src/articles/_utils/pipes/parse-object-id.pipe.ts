@@ -13,7 +13,7 @@ export class ParseObjectIdPipe implements PipeTransform<
 
   async transform(value: string) {
     if (!isValidObjectId(value)) {
-      throw new InvalidMongoIdException(Article.name, value);
+      throw new InvalidMongoIdException(Article, value);
     }
     return await this.articlesRepository.findByIdOrFail(value);
   }
