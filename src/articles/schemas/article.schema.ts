@@ -1,8 +1,7 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { HydratedDocument, Types } from 'mongoose';
+import { HydratedDocument } from 'mongoose';
 
 export type ArticleDocument = HydratedDocument<Article>;
-export type LeanArticle = Article & { _id: Types.ObjectId };
 
 @Schema({ timestamps: true, versionKey: false })
 export class Article {

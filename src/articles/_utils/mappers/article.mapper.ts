@@ -1,10 +1,18 @@
 import { Injectable } from '@nestjs/common';
-import { LeanArticle } from '../../schemas/article.schema.js';
+import { Types } from 'mongoose';
 import { ArticleResponseDto } from '../dtos/responses/article.response.dto.js';
+
+interface ArticleLike {
+  _id: Types.ObjectId;
+  title: string;
+  content: string;
+  author: string;
+  createdAt: Date;
+}
 
 @Injectable()
 export class ArticleMapper {
-  toResponse(article: LeanArticle): ArticleResponseDto {
+  toResponse(article: ArticleLike): ArticleResponseDto {
     return {
       id: article._id,
       title: article.title,
@@ -14,6 +22,6 @@ export class ArticleMapper {
     };
   }
 
-  toResponseList = (articles: LeanArticle[]): ArticleResponseDto[] =>
+  toResponseList = (articles: ArticleLike[]): ArticleResponseDto[] =>
     articles.map((article) => this.toResponse(article));
 }

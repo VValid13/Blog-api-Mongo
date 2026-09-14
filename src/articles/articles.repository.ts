@@ -5,11 +5,7 @@ import { ArticlesExceptions } from './_utils/exceptions/articles.exceptions.js';
 import { CreateArticleDto } from './_utils/dtos/requests/create-article.dto.js';
 import { UpdateArticleDto } from './_utils/dtos/requests/update-article.dto.js';
 import { MongoId } from '../_utils/types/mongo-id.type.js';
-import {
-  Article,
-  ArticleDocument,
-  LeanArticle,
-} from './schemas/article.schema.js';
+import { Article, ArticleDocument } from './schemas/article.schema.js';
 
 @Injectable()
 export class ArticlesRepository {
@@ -30,18 +26,16 @@ export class ArticlesRepository {
   async findByIdOrFail(articleId: MongoId) {
     return await this.articleModel
       .findById(articleId)
-      .lean()
       .orFail(() => this.articlesExceptions.articleNotFound(articleId))
       .exec();
   }
 
   async updateByIdOrFail(
-    article: LeanArticle,
+    article: ArticleDocument,
     updateArticleDto: UpdateArticleDto,
   ) {
     return await this.articleModel
       .findByIdAndUpdate(article._id, updateArticleDto, { new: true })
-      .lean()
       .orFail(() => this.articlesExceptions.articleNotFound(article._id))
       .exec();
   }
@@ -49,7 +43,6 @@ export class ArticlesRepository {
   async deleteByIdOrFail(articleId: MongoId) {
     return await this.articleModel
       .findByIdAndDelete(articleId)
-      .lean()
       .orFail(() => this.articlesExceptions.articleNotFound(articleId))
       .exec();
   }

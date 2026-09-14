@@ -2,12 +2,12 @@ import { Injectable, PipeTransform } from '@nestjs/common';
 import { isValidObjectId } from 'mongoose';
 import { ArticlesRepository } from '../../articles.repository.js';
 import { ArticlesExceptions } from '../exceptions/articles.exceptions.js';
-import { LeanArticle } from '../../schemas/article.schema.js';
+import { ArticleDocument } from '../../schemas/article.schema.js';
 
 @Injectable()
 export class ParseObjectIdPipe implements PipeTransform<
   string,
-  Promise<LeanArticle>
+  Promise<ArticleDocument>
 > {
   constructor(
     private readonly articlesRepository: ArticlesRepository,

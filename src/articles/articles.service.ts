@@ -4,7 +4,7 @@ import { ArticleMapper } from './_utils/mappers/article.mapper.js';
 import { CreateArticleDto } from './_utils/dtos/requests/create-article.dto.js';
 import { UpdateArticleDto } from './_utils/dtos/requests/update-article.dto.js';
 import { MongoId } from '../_utils/types/mongo-id.type.js';
-import { LeanArticle } from './schemas/article.schema.js';
+import { ArticleDocument } from './schemas/article.schema.js';
 
 @Injectable()
 export class ArticlesService {
@@ -23,12 +23,12 @@ export class ArticlesService {
     return this.articleMapper.toResponseList(articles);
   }
 
-  async findById(article: LeanArticle) {
+  async findById(article: ArticleDocument) {
     return this.articleMapper.toResponse(article);
   }
 
   async updateArticle(
-    article: LeanArticle,
+    article: ArticleDocument,
     updateArticleDto: UpdateArticleDto,
   ) {
     const updatedArticle = await this.articlesRepository.updateByIdOrFail(
