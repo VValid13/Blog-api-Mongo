@@ -27,6 +27,7 @@ export class ArticlesRepository {
     return await this.articleModel
       .findById(articleId)
       .orFail(() => this.articlesExceptions.articleNotFound(articleId))
+      .lean()
       .exec();
   }
 
@@ -37,6 +38,7 @@ export class ArticlesRepository {
     return await this.articleModel
       .findByIdAndUpdate(article._id, updateArticleDto, { new: true })
       .orFail(() => this.articlesExceptions.articleNotFound(article._id))
+      .lean()
       .exec();
   }
 
@@ -44,6 +46,7 @@ export class ArticlesRepository {
     return await this.articleModel
       .findByIdAndDelete(articleId)
       .orFail(() => this.articlesExceptions.articleNotFound(articleId))
+      .lean()
       .exec();
   }
 }

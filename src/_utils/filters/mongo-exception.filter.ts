@@ -3,11 +3,11 @@ import {
   Catch,
   ConflictException,
   ExceptionFilter,
+  InternalServerErrorException,
 } from '@nestjs/common';
 import type { Response } from 'express';
 import { MongoServerError } from 'mongodb';
-
-const DUPLICATE_KEY_ERROR_CODE = 11000;
+import { DUPLICATE_KEY_ERROR_CODE } from '../constants/mongo.constants.js';
 
 @Catch(MongoServerError)
 export class MongoExceptionFilter implements ExceptionFilter {
@@ -20,12 +20,11 @@ export class MongoExceptionFilter implements ExceptionFilter {
   }
 
   private toHttpException(exception: MongoServerError) {
-    if (exception.code === DUPLICATE_KEY_ERROR_CODE) {
-      const duplicateFields = Object.entries(exception.keyValue ?? {})
-        .map(([field, value]) => `${field}: "${value}"`)
-        .join(', ');
-      return new ConflictException(`Duplicate value for ${duplicateFields}`);
+    switch (exception.code) {
+      case DUPLICATE_KEY_ERROR_CODE:
+        return new ConflictException(exception.message);
+      default:
+        return new InternalServerErrorException(exception.message);
     }
-    return new ConflictException('Database conflict');
   }
 }
