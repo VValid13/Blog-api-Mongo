@@ -2,7 +2,7 @@ import { Injectable, PipeTransform } from '@nestjs/common';
 import { isValidObjectId } from 'mongoose';
 import { ArticlesRepository } from '../../articles.repository.js';
 import { InvalidMongoIdException } from '../../../_utils/exceptions/invalid-mongo-id.exception.js';
-import { ArticleDocument } from '../../schemas/article.schema.js';
+import { Article, ArticleDocument } from '../../schemas/article.schema.js';
 
 @Injectable()
 export class ParseObjectIdPipe implements PipeTransform<
@@ -13,7 +13,7 @@ export class ParseObjectIdPipe implements PipeTransform<
 
   async transform(value: string) {
     if (!isValidObjectId(value)) {
-      throw new InvalidMongoIdException(value);
+      throw new InvalidMongoIdException(Article.name, value);
     }
     return await this.articlesRepository.findByIdOrFail(value);
   }
