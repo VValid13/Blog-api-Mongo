@@ -1,12 +1,10 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Types } from 'mongoose';
 
-export class ArticleResponseDto {
+export class UserResponseDto {
   @ApiProperty({ type: String })
   id: Types.ObjectId;
 
-  title: string;
-  content: string;
-  authorName: string;
+  email: string;
   createdAt: Date;
 }

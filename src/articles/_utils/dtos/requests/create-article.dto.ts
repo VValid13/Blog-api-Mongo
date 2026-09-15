@@ -1,4 +1,4 @@
-import { IsNotEmptyString } from '../../decorators/IsNotEmptyString.js';
+import { IsNotEmptyString } from '../../../../_utils/decorators/IsNotEmptyString.js';
 
 export class CreateArticleDto {
   @IsNotEmptyString()
