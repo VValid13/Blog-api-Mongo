@@ -21,4 +21,8 @@ export class UsersService {
   async setRefreshToken(userId: MongoId, hashedRefreshToken: string | null) {
     await this.usersRepository.setRefreshToken(userId, hashedRefreshToken);
   }
+
+  async setUsername(userId: MongoId, username: string) {
+    await this.usersRepository.setUsername(userId, username);
+  }
 }

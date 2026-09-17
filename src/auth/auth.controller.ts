@@ -3,6 +3,7 @@ import {
   Controller,
   HttpCode,
   HttpStatus,
+  Patch,
   Post,
   UseGuards,
 } from '@nestjs/common';
@@ -16,10 +17,11 @@ import { AuthService } from './auth.service.js';
 import { RegisterDto } from './_utils/dtos/requests/register.dto.js';
 import { LoginDto } from './_utils/dtos/requests/login.dto.js';
 import { RefreshTokenDto } from './_utils/dtos/requests/refresh-token.dto.js';
+import { OnboardingDto } from './_utils/dtos/requests/onboarding.dto.js';
 import { CurrentUser } from './_utils/decorators/current-user.decorator.js';
 import { JwtAuthGuard } from './guards/jwt-auth.guard.js';
 import { UserResponseDto } from '../users/_utils/dtos/responses/user.response.dto.js';
-import type { JwtPayload } from './_utils/types/jwt-payload.type.js';
+import type { UserLike } from '../users/_utils/types/user-like.type.js';
 
 @ApiTags('auth')
 @Controller('auth')
@@ -67,8 +69,26 @@ export class AuthController {
   @UseGuards(JwtAuthGuard)
   @Post('logout')
   @HttpCode(HttpStatus.OK)
-  async logout(@CurrentUser() user: JwtPayload) {
-    await this.authService.logout(user.sub);
+  async logout(@CurrentUser() user: UserLike) {
+    await this.authService.logout(user._id);
     return { message: 'Logged out' };
+  }
+
+  @ApiBearerAuth()
+  @ApiOperation({
+    summary: "Définir son nom d'utilisateur (complète l'inscription)",
+  })
+  @ApiResponse({ status: 200, description: 'Username mis à jour' })
+  @ApiResponse({ status: 400, description: 'Corps de requête invalide' })
+  @ApiResponse({ status: 401, description: 'Non authentifié' })
+  @UseGuards(JwtAuthGuard)
+  @Patch('onboarding')
+  @HttpCode(HttpStatus.OK)
+  async onboarding(
+    @CurrentUser() user: UserLike,
+    @Body() onboardingDto: OnboardingDto,
+  ) {
+    await this.authService.onboarding(user._id, onboardingDto.username);
+    return { message: 'Username set' };
   }
 }

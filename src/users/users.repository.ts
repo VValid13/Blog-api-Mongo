@@ -34,4 +34,8 @@ export class UsersRepository {
       .updateOne({ _id: userId }, { hashedRefreshToken })
       .exec();
   }
+
+  async setUsername(userId: MongoId, username: string) {
+    await this.userModel.updateOne({ _id: userId }, { username }).exec();
+  }
 }

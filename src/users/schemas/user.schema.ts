@@ -14,6 +14,9 @@ export class User {
   @Prop({ type: String, default: null })
   hashedRefreshToken: string | null;
 
+  @Prop({ type: String, default: null, unique: true, sparse: true })
+  username: string | null;
+
   createdAt: Date;
 
   updatedAt: Date;

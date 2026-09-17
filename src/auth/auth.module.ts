@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { Global, Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { JwtModule } from '@nestjs/jwt';
 import { PassportModule } from '@nestjs/passport';
@@ -7,7 +7,10 @@ import { AuthController } from './auth.controller.js';
 import { AuthService } from './auth.service.js';
 import { AuthExceptions } from './_utils/exceptions/auth.exceptions.js';
 import { JwtStrategy } from './strategies/jwt.strategy.js';
+import { JwtAuthGuard } from './guards/jwt-auth.guard.js';
+import { UsernameSetGuard } from './guards/username-set.guard.js';
 
+@Global()
 @Module({
   imports: [
     UsersModule,
@@ -26,7 +29,13 @@ import { JwtStrategy } from './strategies/jwt.strategy.js';
     }),
   ],
   controllers: [AuthController],
-  providers: [AuthService, AuthExceptions, JwtStrategy],
-  exports: [PassportModule],
+  providers: [
+    AuthService,
+    AuthExceptions,
+    JwtStrategy,
+    JwtAuthGuard,
+    UsernameSetGuard,
+  ],
+  exports: [PassportModule, JwtAuthGuard, UsernameSetGuard],
 })
 export class AuthModule {}

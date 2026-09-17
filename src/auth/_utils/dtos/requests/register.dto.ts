@@ -1,11 +1,15 @@
-import { IsEmail, MinLength } from 'class-validator';
-import { IsNotEmptyString } from '../../../../_utils/decorators/IsNotEmptyString.js';
+import { IsEmail, IsStrongPassword } from 'class-validator';
 
 export class RegisterDto {
   @IsEmail()
   email: string;
 
-  @IsNotEmptyString()
-  @MinLength(8)
+  @IsStrongPassword({
+    minLength: 12,
+    minLowercase: 1,
+    minUppercase: 1,
+    minNumbers: 1,
+    minSymbols: 1,
+  })
   password: string;
 }

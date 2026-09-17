@@ -1,19 +1,14 @@
 import { Injectable } from '@nestjs/common';
-import { Types } from 'mongoose';
+import { UserLike } from '../types/user-like.type.js';
 import { UserResponseDto } from '../dtos/responses/user.response.dto.js';
-
-interface UserLike {
-  _id: Types.ObjectId;
-  email: string;
-  createdAt: Date;
-}
 
 @Injectable()
 export class UserMapper {
   toResponse(user: UserLike): UserResponseDto {
     return {
-      id: user._id,
+      id: user._id.toString(),
       email: user.email,
+      username: user.username,
       createdAt: user.createdAt,
     };
   }

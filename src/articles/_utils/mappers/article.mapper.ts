@@ -14,7 +14,7 @@ interface ArticleLike {
 export class ArticleMapper {
   toResponse(article: ArticleLike): ArticleResponseDto {
     return {
-      id: article._id,
+      id: article._id.toString(),
       title: article.title,
       content: article.content,
       authorName: article.author,
