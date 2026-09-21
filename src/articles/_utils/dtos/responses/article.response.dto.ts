@@ -1,7 +1,5 @@
-import { Types } from 'mongoose';
-
 export class ArticleResponseDto {
-  id: Types.ObjectId;
+  id: string;
   title: string;
   content: string;
   authorName: string;
