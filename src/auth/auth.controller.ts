@@ -21,31 +21,33 @@ import { OnboardingDto } from './_utils/dtos/requests/onboarding.dto.js';
 import { CurrentUser } from './_utils/decorators/current-user.decorator.js';
 import { JwtAuthGuard } from './guards/jwt-auth.guard.js';
 import { UserResponseDto } from '../users/_utils/dtos/responses/user.response.dto.js';
-import type { UserLike } from '../users/_utils/types/user-like.type.js';
+import type { UserDocument } from '../users/schemas/user.schema.js';
 
 @ApiTags('auth')
 @Controller('auth')
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
+  @Post('register')
   @ApiOperation({ summary: 'Créer un compte utilisateur' })
   @ApiResponse({ status: 201, type: UserResponseDto })
   @ApiResponse({ status: 400, description: 'Corps de requête invalide' })
   @ApiResponse({ status: 409, description: 'Cet email est déjà utilisé' })
-  @Post('register')
   async register(@Body() registerDto: RegisterDto) {
     return await this.authService.register(registerDto);
   }
 
+  @Post('login')
+  @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Se connecter et obtenir un couple de tokens' })
   @ApiResponse({ status: 200, description: 'Couple access/refresh token' })
   @ApiResponse({ status: 401, description: 'Email ou mot de passe invalide' })
-  @Post('login')
-  @HttpCode(HttpStatus.OK)
   async login(@Body() loginDto: LoginDto) {
     return await this.authService.login(loginDto);
   }
 
+  @Post('refresh')
+  @HttpCode(HttpStatus.OK)
   @ApiOperation({
     summary: 'Échanger un refresh token contre un nouveau couple de tokens',
   })
@@ -54,41 +56,37 @@ export class AuthController {
     status: 401,
     description: 'Refresh token invalide ou révoqué',
   })
-  @Post('refresh')
-  @HttpCode(HttpStatus.OK)
   async refresh(@Body() refreshTokenDto: RefreshTokenDto) {
     return await this.authService.refresh(refreshTokenDto);
   }
 
   @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard)
+  @Post('logout')
+  @HttpCode(HttpStatus.NO_CONTENT)
   @ApiOperation({
     summary: "Révoquer le refresh token de l'utilisateur connecté",
   })
-  @ApiResponse({ status: 200, description: 'Déconnecté' })
+  @ApiResponse({ status: 204, description: 'Déconnecté' })
   @ApiResponse({ status: 401, description: 'Non authentifié' })
-  @UseGuards(JwtAuthGuard)
-  @Post('logout')
-  @HttpCode(HttpStatus.OK)
-  async logout(@CurrentUser() user: UserLike) {
+  async logout(@CurrentUser() user: UserDocument) {
     await this.authService.logout(user._id);
-    return { message: 'Logged out' };
   }
 
   @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard)
+  @Patch('onboarding')
+  @HttpCode(HttpStatus.NO_CONTENT)
   @ApiOperation({
     summary: "Définir son nom d'utilisateur (complète l'inscription)",
   })
-  @ApiResponse({ status: 200, description: 'Username mis à jour' })
+  @ApiResponse({ status: 204, description: 'Username mis à jour' })
   @ApiResponse({ status: 400, description: 'Corps de requête invalide' })
   @ApiResponse({ status: 401, description: 'Non authentifié' })
-  @UseGuards(JwtAuthGuard)
-  @Patch('onboarding')
-  @HttpCode(HttpStatus.OK)
   async onboarding(
-    @CurrentUser() user: UserLike,
+    @CurrentUser() user: UserDocument,
     @Body() onboardingDto: OnboardingDto,
   ) {
     await this.authService.onboarding(user._id, onboardingDto.username);
-    return { message: 'Username set' };
   }
 }

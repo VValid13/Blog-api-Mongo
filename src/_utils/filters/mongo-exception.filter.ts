@@ -7,7 +7,7 @@ import {
 } from '@nestjs/common';
 import type { Response } from 'express';
 import { MongoServerError } from 'mongodb';
-import { DUPLICATE_KEY_ERROR_CODE } from '../constants/mongo.constants.js';
+import { DUPLICATE_KEY_ERROR_CODE } from '../constants/global.constants.js';
 
 @Catch(MongoServerError)
 export class MongoExceptionFilter implements ExceptionFilter {

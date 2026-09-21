@@ -1,10 +1,10 @@
 import { Injectable } from '@nestjs/common';
-import { UserLike } from '../types/user-like.type.js';
+import { UserDocument } from '../../schemas/user.schema.js';
 import { UserResponseDto } from '../dtos/responses/user.response.dto.js';
 
 @Injectable()
 export class UserMapper {
-  toResponse(user: UserLike): UserResponseDto {
+  toResponse(user: UserDocument): UserResponseDto {
     return {
       id: user._id.toString(),
       email: user.email,

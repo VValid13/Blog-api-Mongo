@@ -21,6 +21,8 @@ import type { ArticleDocument } from './schemas/article.schema.js';
 export class ArticlesController {
   constructor(private readonly articlesService: ArticlesService) {}
 
+  @Protect()
+  @Post()
   @ApiOperation({ summary: 'Créer un article' })
   @ApiResponse({ status: 201, type: ArticleResponseDto })
   @ApiResponse({ status: 400, description: 'Corps de requête invalide' })
@@ -29,19 +31,18 @@ export class ArticlesController {
     status: 409,
     description: 'Un article avec ce titre existe déjà pour cet auteur',
   })
-  @Protect()
-  @Post()
   async create(@Body() createArticleDto: CreateArticleDto) {
     return await this.articlesService.create(createArticleDto);
   }
 
+  @Get()
   @ApiOperation({ summary: 'Lister tous les articles' })
   @ApiResponse({ status: 200, type: [ArticleResponseDto] })
-  @Get()
   async findAll() {
     return await this.articlesService.findAll();
   }
 
+  @Get(':articleId')
   @ApiOperation({ summary: 'Récupérer un article par son id' })
   @ApiParam({
     name: 'articleId',
@@ -50,13 +51,14 @@ export class ArticlesController {
   @ApiResponse({ status: 200, type: ArticleResponseDto })
   @ApiResponse({ status: 400, description: 'Id invalide' })
   @ApiResponse({ status: 404, description: 'Article introuvable' })
-  @Get(':articleId')
   async findById(
     @Param('articleId', ParseObjectIdPipe) article: ArticleDocument,
   ) {
     return await this.articlesService.findById(article);
   }
 
+  @Protect()
+  @Patch(':articleId')
   @ApiOperation({ summary: 'Modifier un article' })
   @ApiParam({
     name: 'articleId',
@@ -66,8 +68,6 @@ export class ArticlesController {
   @ApiResponse({ status: 400, description: 'Id ou corps de requête invalide' })
   @ApiResponse({ status: 401, description: 'Non authentifié' })
   @ApiResponse({ status: 404, description: 'Article introuvable' })
-  @Protect()
-  @Patch(':articleId')
   async update(
     @Param('articleId', ParseObjectIdPipe) article: ArticleDocument,
     @Body() updateArticleDto: UpdateArticleDto,
@@ -75,6 +75,8 @@ export class ArticlesController {
     return await this.articlesService.updateArticle(article, updateArticleDto);
   }
 
+  @Protect()
+  @Delete(':articleId')
   @ApiOperation({ summary: 'Supprimer un article' })
   @ApiParam({
     name: 'articleId',
@@ -84,8 +86,6 @@ export class ArticlesController {
   @ApiResponse({ status: 400, description: 'Id invalide' })
   @ApiResponse({ status: 401, description: 'Non authentifié' })
   @ApiResponse({ status: 404, description: 'Article introuvable' })
-  @Protect()
-  @Delete(':articleId')
   async delete(
     @Param('articleId', ParseObjectIdPipe) article: ArticleDocument,
   ) {

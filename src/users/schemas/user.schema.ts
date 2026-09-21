@@ -14,7 +14,7 @@ export class User {
   @Prop({ type: String, default: null })
   hashedRefreshToken: string | null;
 
-  @Prop({ type: String, default: null, unique: true, sparse: true })
+  @Prop({ type: String, default: null })
   username: string | null;
 
   createdAt: Date;
@@ -23,3 +23,8 @@ export class User {
 }
 
 export const UserSchema = SchemaFactory.createForClass(User);
+
+UserSchema.index(
+  { username: 1 },
+  { unique: true, partialFilterExpression: { username: { $type: 'string' } } },
+);

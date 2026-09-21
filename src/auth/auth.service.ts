@@ -5,15 +5,13 @@ import { createHash, timingSafeEqual } from 'node:crypto';
 import * as bcrypt from 'bcrypt';
 import { UsersService } from '../users/users.service.js';
 import { UserMapper } from '../users/_utils/mappers/user.mapper.js';
-import { UsersExceptions } from '../users/_utils/exceptions/users.exceptions.js';
 import { AuthExceptions } from './_utils/exceptions/auth.exceptions.js';
 import { RegisterDto } from './_utils/dtos/requests/register.dto.js';
 import { LoginDto } from './_utils/dtos/requests/login.dto.js';
 import { RefreshTokenDto } from './_utils/dtos/requests/refresh-token.dto.js';
 import { JwtPayload } from './_utils/types/jwt-payload.type.js';
 import { MongoId } from '../_utils/types/mongo-id.type.js';
-
-const SALT_ROUNDS = 10;
+import { SALT_ROUNDS } from '../_utils/constants/global.constants.js';
 
 @Injectable()
 export class AuthService {
@@ -23,15 +21,9 @@ export class AuthService {
     private readonly jwtService: JwtService,
     private readonly configService: ConfigService,
     private readonly authExceptions: AuthExceptions,
-    private readonly usersExceptions: UsersExceptions,
   ) {}
 
   async register(registerDto: RegisterDto) {
-    const existingUser = await this.usersService.findByEmail(registerDto.email);
-    if (existingUser) {
-      throw this.usersExceptions.emailAlreadyExists(registerDto.email);
-    }
-
     const hashedPassword = await bcrypt.hash(registerDto.password, SALT_ROUNDS);
     const user = await this.usersService.create(
       registerDto.email,
@@ -65,7 +57,10 @@ export class AuthService {
     const payload = await this.verifyRefreshToken(refreshTokenDto.refreshToken);
 
     const user = await this.usersService.findByIdOrFail(payload.sub);
+    const isTokenOwner =
+      payload.sub === user._id.toString() && payload.email === user.email;
     if (
+      !isTokenOwner ||
       !user.hashedRefreshToken ||
       !this.refreshTokenMatches(
         refreshTokenDto.refreshToken,
