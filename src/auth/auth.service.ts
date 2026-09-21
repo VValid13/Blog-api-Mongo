@@ -1,17 +1,16 @@
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
-import { createHash, timingSafeEqual } from 'node:crypto';
 import * as bcrypt from 'bcrypt';
 import { UsersService } from '../users/users.service.js';
 import { UserMapper } from '../users/_utils/mappers/user.mapper.js';
 import { AuthExceptions } from './_utils/exceptions/auth.exceptions.js';
 import { RegisterDto } from './_utils/dtos/requests/register.dto.js';
 import { LoginDto } from './_utils/dtos/requests/login.dto.js';
-import { RefreshTokenDto } from './_utils/dtos/requests/refresh-token.dto.js';
-import { JwtPayload } from './_utils/types/jwt-payload.type.js';
+import { hashRefreshToken } from './_utils/helpers/refresh-token-hash.helper.js';
+import { SALT_ROUNDS } from './_utils/constants/auth.constants.js';
 import { MongoId } from '../_utils/types/mongo-id.type.js';
-import { SALT_ROUNDS } from '../_utils/constants/global.constants.js';
+import type { UserDocument } from '../users/schemas/user.schema.js';
 
 @Injectable()
 export class AuthService {
@@ -32,10 +31,6 @@ export class AuthService {
     return this.userMapper.toResponse(user);
   }
 
-  async onboarding(userId: MongoId, username: string) {
-    await this.usersService.setUsername(userId, username);
-  }
-
   async login(loginDto: LoginDto) {
     const user = await this.usersService.findByEmail(loginDto.email);
     if (!user) {
@@ -53,25 +48,11 @@ export class AuthService {
     return await this.issueTokens(user._id, user.email);
   }
 
-  async refresh(refreshTokenDto: RefreshTokenDto) {
-    const payload = await this.verifyRefreshToken(refreshTokenDto.refreshToken);
-
-    const user = await this.usersService.findByIdOrFail(payload.sub);
-    const isTokenOwner =
-      payload.sub === user._id.toString() && payload.email === user.email;
-    if (
-      !isTokenOwner ||
-      !user.hashedRefreshToken ||
-      !this.refreshTokenMatches(
-        refreshTokenDto.refreshToken,
-        user.hashedRefreshToken,
-      )
-    ) {
-      await this.usersService.setRefreshToken(user._id, null);
+  async refresh(currentUser: UserDocument, tokenOwner: UserDocument) {
+    if (!currentUser._id.equals(tokenOwner._id)) {
       throw this.authExceptions.invalidRefreshToken();
     }
-
-    return await this.issueTokens(user._id, user.email);
+    return await this.issueTokens(tokenOwner._id, tokenOwner.email);
   }
 
   async logout(userId: MongoId) {
@@ -95,34 +76,9 @@ export class AuthService {
 
     await this.usersService.setRefreshToken(
       userId,
-      this.hashRefreshToken(refreshToken),
+      hashRefreshToken(refreshToken),
     );
 
     return { accessToken, refreshToken };
-  }
-
-  private async verifyRefreshToken(refreshToken: string): Promise<JwtPayload> {
-    try {
-      return await this.jwtService.verifyAsync<JwtPayload>(refreshToken, {
-        secret: this.configService.getOrThrow<string>('JWT_REFRESH_SECRET'),
-      });
-    } catch {
-      throw this.authExceptions.invalidRefreshToken();
-    }
-  }
-
-  private hashRefreshToken(refreshToken: string): string {
-    return createHash('sha256').update(refreshToken).digest('hex');
-  }
-
-  private refreshTokenMatches(
-    providedToken: string,
-    storedHash: string,
-  ): boolean {
-    const provided = Buffer.from(this.hashRefreshToken(providedToken));
-    const stored = Buffer.from(storedHash);
-    return (
-      provided.length === stored.length && timingSafeEqual(provided, stored)
-    );
   }
 }

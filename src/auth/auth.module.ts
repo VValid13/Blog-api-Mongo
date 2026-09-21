@@ -9,6 +9,7 @@ import { AuthExceptions } from './_utils/exceptions/auth.exceptions.js';
 import { JwtStrategy } from './strategies/jwt.strategy.js';
 import { JwtAuthGuard } from './guards/jwt-auth.guard.js';
 import { UsernameSetGuard } from './guards/username-set.guard.js';
+import { RefreshTokenPipe } from './_utils/pipes/refresh-token.pipe.js';
 
 @Global()
 @Module({
@@ -35,6 +36,7 @@ import { UsernameSetGuard } from './guards/username-set.guard.js';
     JwtStrategy,
     JwtAuthGuard,
     UsernameSetGuard,
+    RefreshTokenPipe,
   ],
   exports: [PassportModule, JwtAuthGuard, UsernameSetGuard],
 })

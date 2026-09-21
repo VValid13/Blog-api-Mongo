@@ -1,25 +1,12 @@
-import {
-  Body,
-  Controller,
-  HttpCode,
-  HttpStatus,
-  Patch,
-  Post,
-  UseGuards,
-} from '@nestjs/common';
-import {
-  ApiBearerAuth,
-  ApiOperation,
-  ApiResponse,
-  ApiTags,
-} from '@nestjs/swagger';
+import { Body, Controller, HttpCode, HttpStatus, Post } from '@nestjs/common';
+import { ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { AuthService } from './auth.service.js';
 import { RegisterDto } from './_utils/dtos/requests/register.dto.js';
 import { LoginDto } from './_utils/dtos/requests/login.dto.js';
 import { RefreshTokenDto } from './_utils/dtos/requests/refresh-token.dto.js';
-import { OnboardingDto } from './_utils/dtos/requests/onboarding.dto.js';
 import { CurrentUser } from './_utils/decorators/current-user.decorator.js';
-import { JwtAuthGuard } from './guards/jwt-auth.guard.js';
+import { Protect } from './_utils/decorators/protect.decorator.js';
+import { RefreshTokenPipe } from './_utils/pipes/refresh-token.pipe.js';
 import { UserResponseDto } from '../users/_utils/dtos/responses/user.response.dto.js';
 import type { UserDocument } from '../users/schemas/user.schema.js';
 
@@ -46,22 +33,27 @@ export class AuthController {
     return await this.authService.login(loginDto);
   }
 
+  @Protect({ requireUsername: false })
   @Post('refresh')
   @HttpCode(HttpStatus.OK)
   @ApiOperation({
     summary: 'Échanger un refresh token contre un nouveau couple de tokens',
   })
+  @ApiBody({ type: RefreshTokenDto })
   @ApiResponse({ status: 200, description: 'Couple access/refresh token' })
   @ApiResponse({
     status: 401,
-    description: 'Refresh token invalide ou révoqué',
+    description:
+      'Non authentifié, ou refresh token invalide, révoqué ou appartenant à un autre utilisateur',
   })
-  async refresh(@Body() refreshTokenDto: RefreshTokenDto) {
-    return await this.authService.refresh(refreshTokenDto);
+  async refresh(
+    @CurrentUser() currentUser: UserDocument,
+    @Body('refreshToken', RefreshTokenPipe) tokenOwner: UserDocument,
+  ) {
+    return await this.authService.refresh(currentUser, tokenOwner);
   }
 
-  @ApiBearerAuth()
-  @UseGuards(JwtAuthGuard)
+  @Protect({ requireUsername: false })
   @Post('logout')
   @HttpCode(HttpStatus.NO_CONTENT)
   @ApiOperation({
@@ -71,22 +63,5 @@ export class AuthController {
   @ApiResponse({ status: 401, description: 'Non authentifié' })
   async logout(@CurrentUser() user: UserDocument) {
     await this.authService.logout(user._id);
-  }
-
-  @ApiBearerAuth()
-  @UseGuards(JwtAuthGuard)
-  @Patch('onboarding')
-  @HttpCode(HttpStatus.NO_CONTENT)
-  @ApiOperation({
-    summary: "Définir son nom d'utilisateur (complète l'inscription)",
-  })
-  @ApiResponse({ status: 204, description: 'Username mis à jour' })
-  @ApiResponse({ status: 400, description: 'Corps de requête invalide' })
-  @ApiResponse({ status: 401, description: 'Non authentifié' })
-  async onboarding(
-    @CurrentUser() user: UserDocument,
-    @Body() onboardingDto: OnboardingDto,
-  ) {
-    await this.authService.onboarding(user._id, onboardingDto.username);
   }
 }

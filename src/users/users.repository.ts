@@ -13,7 +13,11 @@ export class UsersRepository {
     private readonly usersExceptions: UsersExceptions,
   ) {}
 
-  async create(email: string, hashedPassword: string) {
+  async createOrFail(email: string, hashedPassword: string) {
+    const emailTaken = await this.userModel.exists({ email }).exec();
+    if (emailTaken) {
+      throw this.usersExceptions.emailAlreadyExists(email);
+    }
     return await this.userModel.create({ email, password: hashedPassword });
   }
 
