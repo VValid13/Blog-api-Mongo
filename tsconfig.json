@@ -28,6 +28,6 @@
     "exactOptionalPropertyTypes": true,
     "allowJs": false,
     "noEmit": false,
-    "types": ["vitest/globals", "node"]
+    "types": ["vitest/globals", "node", "multer"]
   }
 }
