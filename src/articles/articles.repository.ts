@@ -42,6 +42,30 @@ export class ArticlesRepository {
       .exec();
   }
 
+  async addPictureOrFail(articleId: MongoId, pictureKey: string) {
+    return await this.articleModel
+      .findByIdAndUpdate(
+        articleId,
+        { $push: { pictures: { key: pictureKey } } },
+        { new: true },
+      )
+      .orFail(() => this.articlesExceptions.articleNotFound(articleId))
+      .lean()
+      .exec();
+  }
+
+  async removePictureOrFail(articleId: MongoId, pictureId: MongoId) {
+    return await this.articleModel
+      .findByIdAndUpdate(
+        articleId,
+        { $pull: { pictures: { _id: pictureId } } },
+        { new: true },
+      )
+      .orFail(() => this.articlesExceptions.articleNotFound(articleId))
+      .lean()
+      .exec();
+  }
+
   async deleteByIdOrFail(articleId: MongoId) {
     return await this.articleModel
       .findByIdAndDelete(articleId)

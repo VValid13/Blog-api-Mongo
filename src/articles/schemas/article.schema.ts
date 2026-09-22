@@ -1,5 +1,6 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { HydratedDocument } from 'mongoose';
+import { PictureDocument, PictureSchema } from './picture.schema.js';
 
 export type ArticleDocument = HydratedDocument<Article>;
 
@@ -13,6 +14,9 @@ export class Article {
 
   @Prop({ required: true, type: String })
   author: string;
+
+  @Prop({ type: [PictureSchema], default: [] })
+  pictures: PictureDocument[];
 
   createdAt: Date;
 
