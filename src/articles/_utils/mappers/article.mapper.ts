@@ -1,27 +1,24 @@
 import { Injectable } from '@nestjs/common';
-import { Types } from 'mongoose';
 import { ArticleResponseDto } from '../dtos/responses/article.response.dto.js';
-
-interface ArticleLike {
-  _id: Types.ObjectId;
-  title: string;
-  content: string;
-  author: string;
-  createdAt: Date;
-}
+import { StorageMapper } from '../../../storage/_utils/mappers/storage.mapper.js';
+import type { ArticleDocument } from '../../schemas/article.schema.js';
 
 @Injectable()
 export class ArticleMapper {
-  toResponse(article: ArticleLike): ArticleResponseDto {
+  constructor(private readonly storageMapper: StorageMapper) {}
+
+  async toResponse(article: ArticleDocument): Promise<ArticleResponseDto> {
     return {
       id: article._id.toString(),
       title: article.title,
       content: article.content,
       authorName: article.author,
+      pictures: await Promise.all(
+        (article.pictures ?? []).map((picture) =>
+          this.storageMapper.toRustfsFileResponse(picture),
+        ),
+      ),
       createdAt: article.createdAt,
     };
   }
-
-  toResponseList = (articles: ArticleLike[]): ArticleResponseDto[] =>
-    articles.map((article) => this.toResponse(article));
 }

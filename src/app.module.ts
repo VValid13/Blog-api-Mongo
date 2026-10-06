@@ -1,6 +1,8 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { MongooseModule } from '@nestjs/mongoose';
+import { ScheduleModule } from '@nestjs/schedule';
+import { GlobalExceptionsModule } from './_utils/exceptions/global-exceptions.module.js';
 import { AppController } from './app.controller.js';
 import { AppService } from './app.service.js';
 import { ArticlesModule } from './articles/articles.module.js';
@@ -16,6 +18,8 @@ import { UsersModule } from './users/users.module.js';
         uri: configService.getOrThrow<string>('MONGODB_URI'),
       }),
     }),
+    ScheduleModule.forRoot(),
+    GlobalExceptionsModule,
     ArticlesModule,
     UsersModule,
     AuthModule,

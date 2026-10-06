@@ -1,5 +1,9 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { HydratedDocument } from 'mongoose';
+import {
+  RustfsFile,
+  RustfsFileSchema,
+} from '../../storage/schemas/rustfs-file.schema.js';
 
 export type ArticleDocument = HydratedDocument<Article>;
 
@@ -13,6 +17,9 @@ export class Article {
 
   @Prop({ required: true, type: String })
   author: string;
+
+  @Prop({ type: [RustfsFileSchema], default: [] })
+  pictures: RustfsFile[];
 
   createdAt: Date;
 

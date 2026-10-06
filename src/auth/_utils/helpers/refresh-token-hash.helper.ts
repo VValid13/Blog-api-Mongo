@@ -1,7 +1,5 @@
 import { createHash, timingSafeEqual } from 'node:crypto';
 
-// SHA-256 et non bcrypt : bcrypt tronque toute entrée au-delà de 72 octets,
-// inadapté à un JWT (150+ caractères).
 export function hashRefreshToken(refreshToken: string): string {
   return createHash('sha256').update(refreshToken).digest('hex');
 }
