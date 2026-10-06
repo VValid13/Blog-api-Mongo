@@ -33,7 +33,6 @@ import {
   PICTURE_MIME_TYPE_REGEX,
 } from './_utils/constants/articles.constants.js';
 import { ParseObjectIdPipe } from './_utils/pipes/parse-object-id.pipe.js';
-import { ParsePictureIdPipe } from './_utils/pipes/parse-picture-id.pipe.js';
 import { Protect } from '../auth/_utils/decorators/protect.decorator.js';
 import type { ArticleDocument } from './schemas/article.schema.js';
 
@@ -134,7 +133,10 @@ export class ArticlesController {
       new ParseFilePipe({
         validators: [
           new MaxFileSizeValidator({ maxSize: PICTURE_MAX_SIZE_BYTES }),
-          new FileTypeValidator({ fileType: PICTURE_MIME_TYPE_REGEX }),
+          new FileTypeValidator({
+            fileType: PICTURE_MIME_TYPE_REGEX,
+            overrideMimeType: true,
+          }),
         ],
       }),
     )
@@ -144,28 +146,25 @@ export class ArticlesController {
   }
 
   @Protect()
-  @Delete(':articleId/pictures/:pictureId')
+  @Delete(':articleId/pictures/:pictureKey')
   @ApiOperation({ summary: "Supprimer une photo d'un article" })
   @ApiParam({
     name: 'articleId',
     description: "Identifiant Mongo de l'article",
   })
   @ApiParam({
-    name: 'pictureId',
-    description: 'Identifiant Mongo de la photo',
+    name: 'pictureKey',
+    description: 'Champ key de la photo, encodé en URL',
   })
   @ApiResponse({ status: 200, type: ArticleResponseDto })
-  @ApiResponse({
-    status: 400,
-    description: "Id d'article ou de photo invalide",
-  })
+  @ApiResponse({ status: 400, description: "Id d'article invalide" })
   @ApiResponse({ status: 401, description: 'Non authentifié' })
   @ApiResponse({ status: 404, description: 'Article ou photo introuvable' })
   async deletePicture(
     @Param('articleId', ParseObjectIdPipe) article: ArticleDocument,
-    @Param('pictureId', ParsePictureIdPipe) pictureId: string,
+    @Param('pictureKey') pictureKey: string,
   ) {
-    return await this.articlesService.deletePicture(article, pictureId);
+    return await this.articlesService.deletePicture(article, pictureKey);
   }
 
   @Protect()

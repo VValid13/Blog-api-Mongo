@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { UsersExceptions } from './_utils/exceptions/users.exceptions.js';
+import { GlobalExceptions } from '../_utils/exceptions/global.exceptions.js';
 import { MongoId } from '../_utils/types/mongo-id.type.js';
 import { User, UserDocument } from './schemas/user.schema.js';
 
@@ -11,6 +12,7 @@ export class UsersRepository {
     @InjectModel(User.name)
     private readonly userModel: Model<UserDocument>,
     private readonly usersExceptions: UsersExceptions,
+    private readonly globalExceptions: GlobalExceptions,
   ) {}
 
   async createOrFail(email: string, hashedPassword: string) {
@@ -28,7 +30,7 @@ export class UsersRepository {
   async findByIdOrFail(userId: MongoId) {
     return await this.userModel
       .findById(userId)
-      .orFail(() => this.usersExceptions.userNotFound(userId))
+      .orFail(() => this.globalExceptions.notFound(User, userId))
       .lean()
       .exec();
   }
